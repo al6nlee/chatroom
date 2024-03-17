@@ -3,8 +3,8 @@ package main
 import (
 	"encoding/binary"
 	"encoding/json"
-	common "example.com/greetings/common/message"
 	"fmt"
+	common "github.com/al6nlee/chatroom/common/message"
 	"net"
 )
 
@@ -41,6 +41,27 @@ func login(userId int, userPwd string) (err error) {
 	if n != 4 || err != nil {
 		fmt.Println("conn.Write fail, err =", err)
 	}
-	fmt.Println("客户端输入的长度=", len(data), "内容为", string(data))
-	return nil
+	// 发送消息本身
+	_, err = conn.Write(data)
+	if err != nil {
+		fmt.Println("conn.Write fail, err =", err)
+	}
+	msg, err = common.ReadPkg(conn)
+
+	if err != nil {
+		fmt.Println("common.ReadPkg fail, err =", err)
+	}
+	var resMsgLogin common.LoginResultMessage
+	err = json.Unmarshal([]byte(msg.Data), &resMsgLogin)
+	if err != nil {
+		fmt.Println("json.Unmarshal fail, err =", err)
+		return
+	}
+	if resMsgLogin.Code == 200 {
+		fmt.Println("登陆成功啦")
+	} else {
+		fmt.Println("登录失败, err =", resMsgLogin.Error)
+	}
+	// 这里还需要服务器端返回的消息
+	return
 }
