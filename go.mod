@@ -1,4 +1,4 @@
-module example.com/greetings
+module github.com/al6nlee/chatroom
 
 go 1.20
 
